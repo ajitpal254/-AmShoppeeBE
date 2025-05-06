@@ -19,9 +19,12 @@
   },
   "homepage": "https://github.com/ajitpal254/-AmShoppeeBE#readme",
   "dependencies": {
+    "cloudinary": "^2.6.1",
     "colors": "^1.4.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
     "mongoose": "^8.14.1"
   }
 }
