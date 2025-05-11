@@ -46,6 +46,11 @@ const productSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    numberOfViews: {
+        type: Number,
+        required: false,
+        default: 0
+    },
    // numReviews:{
      //   type: Number,
        // required: true
