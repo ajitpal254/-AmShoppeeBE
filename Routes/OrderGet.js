@@ -24,13 +24,13 @@ cartOrder.get('/cart/:id',asyncHandler(async (req,res) =>{
 
 cartOrder.delete("/cart/:id", (req, res)=>{
     console.log(req)
-    Cart.findByIdAndRemove(req.params.id)
+    Cart.findByIdAndDelete(req.params.id)
         .exec()
         .then(() => {
             console.log("cartOrder: OK")
             res.sendStatus(200)
         }).catch(()=>{
-            req.sendStatus(400)
+            res.sendStatus(400)
         })
 
 })

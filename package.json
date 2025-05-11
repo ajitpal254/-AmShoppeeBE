@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "backend app for 3AmShoppme",
   "main": "seeders.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/ajitpal254/-AmShoppeeBE#readme",
   "dependencies": {
+    "backend": "file:",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.1",
     "colors": "^1.4.0",
@@ -26,6 +27,8 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
+    "firebase": "^11.7.1",
+    "firebase-admin": "^13.3.0",
     "mongoose": "^8.14.1"
   }
 }

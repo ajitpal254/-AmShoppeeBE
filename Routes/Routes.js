@@ -5,61 +5,47 @@ const User = require('./../models/user')
 const mongoose = require('mongoose')
 const asyncHandler = require('express-async-handler')
 
-router.post('/signup',async (req, res) => {
-   const saltPassword = await bcrypt.genSalt(10)
-    const securePassword = await bcrypt.hash(req.body.password,saltPassword)
+router.post(
+    '/signup',
+    asyncHandler(async (req, res) => {
+        const { name, email, password } = req.body;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-    const signedUpUser = new User ({
-        name:req.body.name,
-        email:req.body.email,
-        password:securePassword
+        const newUser = new User({
+            name,
+            email,
+            password: hashedPassword,
+        });
+
+        const savedUser = await newUser.save();
+        res.status(201).json(savedUser);
     })
-    signedUpUser.save()
-        .then(data =>{
-            res.json(data)
-        })
-        .catch(err =>{
-            res.json(err)
-        })
-    }
-)
+);
 
-router.get("/test", (req, res) => {
-    res.send("Test Route")
-})
+router.get('/test', (req, res) => {
+    res.send('Test Route');
+});
 
-router.post('/login',asyncHandler(async (req,res)=>{
-    const { email, password } = req.body
+router.post(
+    '/login',
+    asyncHandler(async (req, res) => {
+        const { email, password } = req.body;
+        console.log(`Searching for ${email}`);
 
-    console.log(`Searching for ${email}`)
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ status: 400, message: 'no_user' });
+        }
 
-    User.findOne({email: email}, (err, user) => {
-        // if ( err ) throw err
-
-        if ( user ) {
-            bcrypt.compare(password, user.password, (err, match) => {
-                // if (err) throw err
-
-                if ( match ) {
-                    res.json({
-                        status: 200,
-                        message: "ok"
-                    })
-                } else {
-                    res.json({
-                        status: 400,
-                        message: "fail"
-                    })
-                }
-            })
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+            res.status(200).json({ status: 200, message: 'ok' });
         } else {
-            res.json({
-                status: 400,
-                message: "no_user"
-            })
+            res.status(400).json({ status: 400, message: 'fail' });
         }
     })
-}))
+);
 
 
 
