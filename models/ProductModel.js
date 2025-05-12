@@ -20,29 +20,33 @@ const productSchema = mongoose.Schema({
       //  type: mongoose.Schema.Types.ObjectId,
         //required: true,
         //ref:'User'
-    //},
-    name :{
+    name: {
         type: String,
         required: true
     },
-    image:{
+    image: {
         type: String,
         required: true
     },
-    brand:{
+    brand: {
         type: String,
         required: true
     },
-    category:{
+    category: {
         type: String,
         required: true
     },
-    description:{
+    description: {
         type: String,
         required: true
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'createdByModel'
     },
     reviews: [reviewScema],
-    rating:{
+    rating: {
         type: Number,
         required: true
     },

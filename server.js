@@ -10,6 +10,8 @@ const cors = require('cors')
 const OrderRoute = require('./Routes/OrderRoute')
 const OrderGet = require('./Routes/OrderGet')
 const admin = require('./Routes/AdminRoute')
+const vendor = require('./Routes/VendorRoutes')
+const verificationEmail = require('./middleware/verificationEmail')
 
 
 dotenv.config();
@@ -26,7 +28,9 @@ app.use(productRoutes)
 app.use(OrderGet)
 app.use(OrderRoute)
 app.use(admin)
+app.use(vendor)
 app.use('/app',userRoute)
+app.use(verificationEmail)
 app.use(errorHandler);
 
 const PORT = 8080;

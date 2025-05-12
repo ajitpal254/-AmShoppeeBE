@@ -31,7 +31,13 @@ adminRouter.get('/admin/delete', asyncHandler(async (req, res) => {
 adminRouter.get('/admin/delete/:id', asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (product) {
-        res.json(product);
+        if (req.user && req.user.isAdmin) {
+            res.json(product);
+        } else if (req.user && product.createdBy && product.createdBy.toString() === req.user._id.toString()) {
+            res.json(product);
+        } else {
+            res.status(403).json({ message: "Not authorized" });
+        }
     } else {
         res.status(404).json({ message: "Product not found" });
     }
@@ -41,8 +47,12 @@ adminRouter.get('/admin/delete/:id', asyncHandler(async (req, res) => {
 adminRouter.delete('/admin/delete/:id', asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (product) {
-        await Product.findByIdAndDelete(req.params.id);  // Safe deletion
-        res.status(200).json({ message: "Product deleted successfully" });
+        if (req.user && (req.user.isAdmin || (product.createdBy && product.createdBy.toString() === req.user._id.toString()))) {
+            await Product.findByIdAndDelete(req.params.id);  // Safe deletion
+            res.status(200).json({ message: "Product deleted successfully" });
+        } else {
+            res.status(403).json({ message: "Not authorized to delete this product" });
+        }
     } else {
         res.status(404).json({ message: "Product not found" });
     }

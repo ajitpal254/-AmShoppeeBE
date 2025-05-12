@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/ajitpal254/-AmShoppeeBE#readme",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "backend": "file:",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.1",
@@ -30,6 +31,7 @@
     "firebase": "^11.7.1",
     "firebase-admin": "^13.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.2"
+    "mongoose": "^8.14.2",
+    "react-router-dom": "^6.30.0"
   }
 }
