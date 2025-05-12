@@ -7,7 +7,7 @@ const sendVerificationEmail = require('../middleware/verificationEmail');
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET_VENDOR;
+const JWT_SECRET_VENDOR = process.env.JWT_SECRET_VENDOR;
 
 // POST /signup - Register a new vendor
 router.post('/vendor/signup', async (req, res) => {
