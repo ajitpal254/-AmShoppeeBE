@@ -1,4 +1,5 @@
 const express = require('express');
+const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Vendor = require('../models/VendorModel');
@@ -87,8 +88,13 @@ router.post('/vendor/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        // Validate email
+        if (!email || typeof email !== 'string' || !validator.isEmail(email)) {
+            return res.status(400).json({ msg: 'Invalid email format' });
+        }
+
         // Look up vendor by email
-        const vendor = await Vendor.findOne({ email });
+        const vendor = await Vendor.findOne({ email: { $eq: email } });
         if (!vendor) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
