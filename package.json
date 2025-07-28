@@ -33,6 +33,7 @@
     "firebase-admin": "^13.3.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.2",
-    "react-router-dom": "^6.30.0"
+    "react-router-dom": "^6.30.0",
+    "express-rate-limit": "^8.0.1"
   }
 }

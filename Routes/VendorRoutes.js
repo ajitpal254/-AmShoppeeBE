@@ -3,14 +3,19 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Vendor = require('../models/VendorModel');
 const sendVerificationEmail = require('../middleware/verificationEmail');
-
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 
 const JWT_SECRET_VENDOR = process.env.JWT_SECRET_VENDOR;
 
 // POST /signup - Register a new vendor
-router.post('/vendor/signup', async (req, res) => {
+const signupLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { msg: 'Too many signup attempts from this IP, please try again later.' }
+});
+router.post('/vendor/signup', signupLimiter, async (req, res) => {
     try {
         const { name, email, password, businessCategory, niche, phone, website } = req.body;
 
