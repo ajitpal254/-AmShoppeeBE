@@ -28,13 +28,9 @@ app.get('/', (req, res) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'http://192.168.2.33:3000',
-        'https://3amshoppee.netlify.app',
-        'https://threeamshoppeebe.onrender.com'
-    ],
-    credentials: true
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(productRoutes)
 app.use(OrderGet)
