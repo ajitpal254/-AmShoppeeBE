@@ -116,38 +116,6 @@ Create a `.env` file in the root directory by copying the example file:
 cp .env.example .env
 ```
 
-Then edit the `.env` file with your actual configuration values (see [Environment Configuration](#environment-configuration) section below).
-
-## ⚙️ Environment Configuration
-
-Create a `.env` file in the root directory with the following variables:
-
-```env
-# Database Configuration
-MONGO_URI=mongodb://localhost:27017/3amshoppme
-# Or use MongoDB Atlas:
-# MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/3amshoppme?retryWrites=true&w=majority
-
-# JWT Secret Key (REQUIRED - Change this to a random string!)
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
-
-# Firebase Configuration (for Google Login)
-FIREBASE_PROJECT_ID=your_firebase_project_id
-
-# SendGrid Email Configuration (Optional - for sending emails)
-SENDGRID_API_KEY=your_sendgrid_api_key_here
-SENDGRID_FROM_EMAIL=your_verified_sender_email@domain.com
-
-# Cloudinary Configuration (Optional - for image uploads)
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-# Server Configuration
-PORT=8080
-NODE_ENV=development
-```
-
 ### Important Notes:
 
 - **MONGO_URI**: Connection string for your MongoDB database (required)
