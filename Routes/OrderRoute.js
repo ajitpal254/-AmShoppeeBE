@@ -1,33 +1,8 @@
-const express = require('express')
-
-
+const express = require('express');
 const routerOrder = express.Router();
-const Cart = require('../models/CartModel')
-const { protect } = require('../middleware/jwtauth');
+const { protect } = require('../middleware/authMiddleware');
+const { addToCart } = require('../controllers/orderController');
 
+routerOrder.post('/addCart', protect, addToCart);
 
-
-routerOrder.post('/addCart', protect, async (req, res) => {
-
-    const addToCart = new Cart({
-        user: req.user.id,
-        product: req.body.id,
-        name: req.body.name,
-        image: req.body.image,
-        price: req.body.price,
-        quantity: req.body.quantity
-
-    })
-
-    addToCart.save()
-        .then(data => {
-            res.json(data)
-        })
-        .catch(err => {
-            res.json(err)
-        })
-
-
-
-})
 module.exports = routerOrder;

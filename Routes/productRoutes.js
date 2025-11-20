@@ -27,6 +27,11 @@ router.get(
       query.category = new RegExp(category, 'i');
     }
 
+    // Deals filter
+    if (req.query.deals === 'true') {
+      query.isOnDiscount = true;
+    }
+
     // Price range filter
     let sort = {};
     switch (sortBy) {
