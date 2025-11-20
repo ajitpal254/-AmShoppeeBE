@@ -11,6 +11,24 @@ router.get(
   })
 );
 
+// Get all unique categories
+router.get(
+  "/categories",
+  asyncHandler(async (req, res) => {
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  })
+);
+
+// Get products by category
+router.get(
+  "/products/category/:category",
+  asyncHandler(async (req, res) => {
+    const products = await Product.find({ category: req.params.category });
+    res.json(products);
+  })
+);
+
 router.get(
   "/products/:id",
   asyncHandler(async (req, res) => {

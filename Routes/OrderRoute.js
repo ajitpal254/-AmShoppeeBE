@@ -3,29 +3,29 @@ const express = require('express')
 
 const routerOrder = express.Router();
 const Cart = require('../models/CartModel')
+const { protect } = require('../middleware/jwtauth');
 
 
 
+routerOrder.post('/addCart', protect, async (req, res) => {
 
-routerOrder.post('/addCart',async(req,res)=>{
+    const addToCart = new Cart({
+        user: req.user.id,
+        id: req.body.id,
+        name: req.body.name,
+        image: req.body.image,
+        price: req.body.price,
+        quantity: req.body.quantity
 
+    })
 
-        const addToCart = new Cart ({
-            id:req.body.id,
-            name:req.body.name,
-            image:req.body.image,
-            price:req.body.price,
-            quantity:req.body.quantity
-
+    addToCart.save()
+        .then(data => {
+            res.json(data)
         })
-
-        addToCart.save()
-            .then(data =>{
-                res.json(data)
-            })
-            .catch(err =>{
-                res.json(err)
-            })
+        .catch(err => {
+            res.json(err)
+        })
 
 
 

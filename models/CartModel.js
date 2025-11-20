@@ -3,36 +3,36 @@ const mongoose = require('mongoose')
 
 
 const orderSchema = mongoose.Schema({
-   // user: {
-     //   type: mongoose.Schema.Types.ObjectId,
-        //required: true,
-        //ref:'User'
-    //},
-    name :{
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: 'User'
+    },
+    name: {
         type: String,
         required: true
     },
-    image:{
+    image: {
         type: String,
         required: true
     },
 
-    price:{
+    price: {
         type: Number,
         required: true
     },
-    quantity:{
+    quantity: {
         type: Number,
         default: 1
     },
 
-    updatedAt:{
+    updatedAt: {
         type: Date,
         default: Date.now
     }
-},{timeStamps:true});
+}, { timeStamps: true });
 
-const Cart = mongoose.model('Cart',orderSchema);
+const Cart = mongoose.model('Cart', orderSchema);
 
 
 module.exports = Cart;

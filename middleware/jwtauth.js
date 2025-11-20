@@ -12,7 +12,8 @@ const protect = (req, res, next) => {
     req.user = decoded; // Attach user info to the request
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Not authorized, token failed' });
+    console.error('Token verification failed:', error.message);
+    return res.status(401).json({ message: 'Not authorized, token failed or expired' });
   }
 };
 
