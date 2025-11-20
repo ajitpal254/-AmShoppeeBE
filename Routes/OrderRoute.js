@@ -11,7 +11,7 @@ routerOrder.post('/addCart', protect, async (req, res) => {
 
     const addToCart = new Cart({
         user: req.user.id,
-        id: req.body.id,
+        product: req.body.id,
         name: req.body.name,
         image: req.body.image,
         price: req.body.price,
