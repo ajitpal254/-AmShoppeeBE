@@ -42,7 +42,7 @@ app.use('/api/discount', discountRoutes)  // Discount/coupon routes
 app.use(errorHandler);
 
 const PORT = 8080;
-app.listen(process.env.PORT || PORT, () => {
+app.listen(process.env.PORT || PORT, '0.0.0.0', () => {
     console.log('Server Running in '.inverse + process.env.NODE_ENV + ' Made on Port '.inverse + process.env.PORT)
 });
 
