@@ -43,12 +43,17 @@ const productSchema = mongoose.Schema({
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         required: false,
-        refPath: 'createdByModel'
+        ref: 'Vendor'  // Reference to Vendor model
+    },
+    createdByName: {
+        type: String,
+        required: false
     },
     reviews: [reviewScema],
     rating: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     },
     numberOfViews: {
         type: Number,
@@ -63,6 +68,22 @@ const productSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    originalPrice: {
+        type: Number,
+        required: false
+    },
+    discountPercentage: {
+        type: Number,
+        required: false,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    isOnDiscount: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     countInStock: {
         type: Number,
         required: true
@@ -75,7 +96,7 @@ const productSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     }
-}, { timeStamps: true });
+}, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);
 

@@ -5,11 +5,11 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    email:{
+    email: {
         type: String,
         required: true
     },
-    password:{
+    password: {
         type: String,
         required: true
     },
@@ -18,17 +18,36 @@ const userSchema = mongoose.Schema({
         required: true,
         default: false
     },
-    createdAt:{
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    googleId: {
+        type: String,
+        required: false,
+        default: null
+    },
+    profilePicture: {
+        type: String,
+        required: false,
+        default: null
+    },
+    phone: {
+        type: String,
+        required: false,
+        default: null
+    },
+    createdAt: {
         type: Date,
         default: Date.now
     },
-    updatedAt:{
+    updatedAt: {
         type: Date,
         default: Date.now
     }
-},{timeStamps:true})
+}, { timestamps: true })
 
-const User = mongoose.model('User',userSchema)
+const User = mongoose.model('User', userSchema)
 
 
 module.exports = User;

@@ -44,7 +44,7 @@ router.post('/vendor/signup', async (req, res) => {
         const verificationLink = domain + '/vendor/verify/' + verificationToken;
 
         // Send verification email (implement your actual email sending logic)
-        await sendVerificationEmail(email, verificationLink);
+        await sendVerificationEmail(email, verificationLink, true);
 
         // Generate auth token for immediate use if needed
         const token = jwt.sign({ id: vendor._id }, JWT_SECRET_VENDOR, { expiresIn: '1h' });
@@ -101,7 +101,7 @@ router.post('/vendor/login', async (req, res) => {
 
         // Generate token
         const token = jwt.sign({ id: vendor._id }, JWT_SECRET_VENDOR, { expiresIn: '1h' });
-        
+
         res.json({ vendor, token });
     } catch (err) {
         console.error(err);

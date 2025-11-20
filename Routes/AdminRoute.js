@@ -58,6 +58,23 @@ adminRouter.delete('/admin/delete/:id', asyncHandler(async (req, res) => {
     }
 }));
 
+// Update Product Discount (Admin)
+adminRouter.put('/admin/products/:id/discount', asyncHandler(async (req, res) => {
+    const { discountPercentage, isOnDiscount } = req.body;
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+    }
+
+    product.discountPercentage = discountPercentage;
+    product.isOnDiscount = isOnDiscount;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+}));
+
 // VENDOR ROUTES
 const { protectVendor } = require('../middleware/vendorAuth');
 
@@ -101,6 +118,27 @@ adminRouter.post('/vendor/upload', protectVendor, asyncHandler(async (req, res) 
     res.status(201).json(savedProduct);
 }));
 
+// Update Product Discount (Vendor)
+adminRouter.put('/vendor/products/:id/discount', protectVendor, asyncHandler(async (req, res) => {
+    const { discountPercentage, isOnDiscount } = req.body;
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.createdBy.toString() !== req.vendor.id) {
+        return res.status(403).json({ message: "Not authorized to update this product" });
+    }
+
+    product.discountPercentage = discountPercentage;
+    product.isOnDiscount = isOnDiscount;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+}));
+
 // Get vendor's orders (orders containing vendor's products)
 const Order = require('../models/OrderModel');
 adminRouter.get('/vendor/orders', protectVendor, asyncHandler(async (req, res) => {
@@ -117,3 +155,4 @@ adminRouter.get('/vendor/orders', protectVendor, asyncHandler(async (req, res) =
 }));
 
 module.exports = adminRouter;
+

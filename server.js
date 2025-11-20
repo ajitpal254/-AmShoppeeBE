@@ -13,6 +13,9 @@ const admin = require('./Routes/AdminRoute')
 const vendor = require('./Routes/VendorRoutes')
 const verificationEmail = require('./middleware/verificationEmail')
 const orderManagement = require('./Routes/OrderManagementRoutes')
+const userProfileRoutes = require('./Routes/userProfileRoutes')
+const vendorProductRoutes = require('./Routes/vendorProductRoutes')
+const discountRoutes = require('./Routes/discountRoutes')
 
 
 dotenv.config();
@@ -32,10 +35,14 @@ app.use(admin)
 app.use(vendor)
 app.use('/app', userRoute)
 app.use(orderManagement)
-app.use(verificationEmail)
+// app.use(verificationEmail) - REMOVED: This is a utility function, not middleware!
+app.use('/api/profile', userProfileRoutes)  // User profile routes
+app.use('/api/vendor', vendorProductRoutes)  // Vendor product routes
+app.use('/api/discount', discountRoutes)  // Discount/coupon routes
 app.use(errorHandler);
 
 const PORT = 8080;
 app.listen(process.env.PORT || PORT, () => {
     console.log('Server Running in '.inverse + process.env.NODE_ENV + ' Made on Port '.inverse + process.env.PORT)
 });
+

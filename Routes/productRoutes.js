@@ -6,8 +6,55 @@ const router = express.Router();
 router.get(
   "/products",
   asyncHandler(async (req, res) => {
-    const products = await Product.find({});
-    res.json(products);
+    const { keyword, category, minPrice, maxPrice, sortBy } = req.query;
+
+    // Build query object
+    let query = {};
+
+    // Keyword search (searches in name, description, brand, category)
+    if (keyword) {
+      const searchRegex = new RegExp(keyword, 'i'); // case-insensitive
+      query.$or = [
+        { name: searchRegex },
+        { description: searchRegex },
+        { brand: searchRegex },
+        { category: searchRegex },
+      ];
+    }
+
+    // Category filter
+    if (category) {
+      query.category = new RegExp(category, 'i');
+    }
+
+    // Price range filter
+    let sort = {};
+    switch (sortBy) {
+      case 'rating':
+        sort.rating = -1;
+        break;
+      case 'newest':
+        sort.createdAt = -1;
+        break;
+      case 'popular':
+        sort.numberOfViews = -1;
+        break;
+      default:
+        sort.createdAt = -1; // Default: newest first
+    }
+
+    // Execute query
+    const products = await Product.find(query).sort(sort);
+
+    res.json({
+      count: products.length,
+      products,
+      query: {
+        keyword: keyword || 'all',
+        category: category || 'all',
+        sortBy: sortBy || 'newest',
+      }
+    });
   })
 );
 
@@ -34,7 +81,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (product) {
-      product.views = (product.views || 0) + 1;
+      product.numberOfViews = (product.numberOfViews || 0) + 1;
       await product.save();
       res.json(product);
     } else {

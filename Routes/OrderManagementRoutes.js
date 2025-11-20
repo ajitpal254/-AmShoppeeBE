@@ -7,40 +7,42 @@ const { protect } = require('../middleware/jwtauth');
 // Create order from cart items
 router.post('/orders', protect, async (req, res) => {
     try {
-        // Get user's cart items
-        const cartItems = await Cart.find({ user: req.user.id });
+        const {
+            orderItems,
+            shippingAddress,
+            paymentMethod,
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            totalPrice,
+            couponCode,
+            discount
+        } = req.body;
 
-        if (cartItems.length === 0) {
-            return res.status(400).json({ message: 'Cart is empty' });
+        if (orderItems && orderItems.length === 0) {
+            return res.status(400).json({ message: 'No order items' });
         }
-
-        // Calculate total
-        const totalPrice = cartItems.reduce((total, item) => {
-            return total + (item.price * item.quantity);
-        }, 0);
-
-        // Create order items
-        const orderItems = cartItems.map(item => ({
-            name: item.name,
-            qty: item.quantity,
-            image: item.image,
-            price: item.price,
-            Product: item.id
-        }));
 
         // Create order
         const order = new Order({
             User: req.user.id,
             orderItems: orderItems,
+            shippingAddress: shippingAddress,
+            paymentMethod: paymentMethod || 'PayPal',
+            itemsPrice: itemsPrice,
+            taxPrice: taxPrice,
+            shippingPrice: shippingPrice,
             totalPrice: totalPrice,
+            couponCode: couponCode,
+            discount: discount || 0,
             isPaid: false,
-            isDelieved: false
+            isDelivered: false
         });
 
         const createdOrder = await order.save();
 
-        // Clear user's cart after order creation
-        await Cart.deleteMany({ user: req.user.id });
+        // Optionally clear user's cart after order creation
+        // await Cart.deleteMany({ user: req.user.id });
 
         res.status(201).json(createdOrder);
     } catch (error) {
@@ -94,4 +96,65 @@ router.get('/orders/:id', protect, async (req, res) => {
     }
 });
 
+// Update order payment status (admin only)
+router.put('/admin/orders/:id/payment', protect, async (req, res) => {
+    try {
+        const User = require('../models/user');
+        const user = await User.findById(req.user.id);
+
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.isPaid = req.body.isPaid;
+        if (req.body.isPaid) {
+            order.paidAt = Date.now();
+        }
+
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } catch (error) {
+        console.error('Update payment status error:', error);
+        res.status(500).json({ message: 'Failed to update payment status' });
+    }
+});
+
+// Update order delivery status (admin only)
+router.put('/admin/orders/:id/delivery', protect, async (req, res) => {
+    try {
+        const User = require('../models/user');
+        const user = await User.findById(req.user.id);
+
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.isDelivered = req.body.isDelivered;
+        // Also update old field name if it exists
+        if (order.isDelieved !== undefined) {
+            order.isDelieved = req.body.isDelivered;
+        }
+        if (req.body.isDelivered) {
+            order.deliveredAt = Date.now();
+        }
+
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } catch (error) {
+        console.error('Update delivery status error:', error);
+        res.status(500).json({ message: 'Failed to update delivery status' });
+    }
+});
+
 module.exports = router;
+
