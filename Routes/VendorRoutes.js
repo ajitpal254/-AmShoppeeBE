@@ -1,8 +1,7 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Vendor = require('../models/VendorModel');
-const sendVerificationEmail = require('../middleware/verificationEmail');
+const { sendVerificationEmail } = require('../utils/emailService');
 
 
 const router = express.Router();
@@ -20,14 +19,12 @@ router.post('/vendor/signup', async (req, res) => {
             return res.status(400).json({ msg: 'Vendor already exists.' });
         }
 
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new vendor with isVerified set to false (make sure your VendorModel supports this field)
+        // Create new vendor with isVerified set to false
+        // Password will be hashed by the pre-save hook in VendorModel
         vendor = new Vendor({
             name: req.body.name,
             email: req.body.email,
-            password: hashedPassword,
+            password: req.body.password, // Plain password, model handles hashing
             businessCategory: req.body.businessCategory,
             niche: req.body.niche,
             phone: req.body.phone,
@@ -43,7 +40,7 @@ router.post('/vendor/signup', async (req, res) => {
         const domain = process.env.NODE_ENV === 'production' ? 'https://3amShoppme.netlify.app' : 'http://localhost:3000';
         const verificationLink = domain + '/vendor/verify/' + verificationToken;
 
-        // Send verification email (implement your actual email sending logic)
+        // Send verification email
         await sendVerificationEmail(email, verificationLink, true);
 
         // Generate auth token for immediate use if needed
@@ -80,8 +77,6 @@ router.get('/vendor/verify/:token', async (req, res) => {
     }
 });
 
-// Dummy email sending function (replace with real implementation)
-
 // POST /login - Authenticate vendor and get token
 router.post('/vendor/login', async (req, res) => {
     try {
@@ -93,10 +88,26 @@ router.post('/vendor/login', async (req, res) => {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
 
-        // Compare passwords
-        const isMatch = await bcrypt.compare(password, vendor.password);
+        // Compare passwords using model method
+        const isMatch = await vendor.comparePassword(password);
         if (!isMatch) {
             return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        // Check approval status
+        if (vendor.approvalStatus === 'pending') {
+            return res.status(403).json({
+                msg: 'Your vendor account is pending admin approval. Please wait for approval before logging in.',
+                approvalStatus: 'pending'
+            });
+        }
+
+        if (vendor.approvalStatus === 'rejected') {
+            return res.status(403).json({
+                msg: `Your vendor account has been rejected. Reason: ${vendor.rejectionReason || 'Not specified'}`,
+                approvalStatus: 'rejected',
+                rejectionReason: vendor.rejectionReason
+            });
         }
 
         // Generate token

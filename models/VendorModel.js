@@ -31,6 +31,24 @@ const vendorSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    approvalStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+    },
+    rejectionReason: {
+        type: String,
+        default: null
+    },
+    approvedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    approvedAt: {
+        type: Date,
+        default: null
+    },
     phone: {
         type: String,
         trim: true
@@ -46,7 +64,7 @@ const vendorSchema = new mongoose.Schema({
 });
 
 // Hash the password before saving
-vendorSchema.pre('save', async function(next) {
+vendorSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
     try {
         const salt = await bcrypt.genSalt(10);
@@ -58,7 +76,7 @@ vendorSchema.pre('save', async function(next) {
 });
 
 // Method to compare passwords for login
-vendorSchema.methods.comparePassword = async function(candidatePassword) {
+vendorSchema.methods.comparePassword = async function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
