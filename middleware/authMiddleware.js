@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Vendor = require('../models/VendorModel');
-const User = require('../models/UserModel'); // Assuming you have a User model
+const User = require('../models/user'); // Fixed: user.js is the actual filename
 
 // Middleware to verify vendor JWT token
 const protectVendor = async (req, res, next) => {
