@@ -2,6 +2,7 @@ const express = require("express");
 const Product = require("../models/ProductModel");
 const asyncHandler = require("express-async-handler");
 const router = express.Router();
+const { protect } = require("../middleware/authMiddleware"); // Assuming you have this
 
 router.get(
   "/products",
@@ -94,4 +95,86 @@ router.get(
     }
   })
 );
+
+const rateLimit = require('express-rate-limit');
+const Order = require('../models/OrderModel');
+
+// Rate limiter for reviews
+const reviewLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 review requests per windowMs
+  message: 'Too many reviews created from this IP, please try again after 15 minutes'
+});
+
+
+// Create new review
+router.post(
+  "/products/:id/reviews",
+  reviewLimiter,
+  protect, // Enable auth middleware
+  asyncHandler(async (req, res) => {
+    const { rating, comment } = req.body;
+    const userId = req.user._id;
+    const userName = req.user.name || req.user.email;
+
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      // Check if user already reviewed this product
+      const alreadyReviewed = product.reviews.find(
+        (r) => r.user.toString() === userId.toString()
+      );
+
+      if (alreadyReviewed) {
+        res.status(400);
+        throw new Error("Product already reviewed");
+      }
+
+      // Check if user has purchased this product (verified purchase)
+      const hasPurchased = await Order.findOne({
+        User: userId,
+        'orderItems.Product': req.params.id,
+        orderStatus: { $in: ['Delivered', 'Confirmed', 'Shipped'] }
+      });
+
+      const review = {
+        name: userName,
+        rating: Number(rating),
+        comment,
+        user: userId,
+        product: req.params.id,
+        isVerifiedPurchase: !!hasPurchased,
+        isApproved: !!hasPurchased, // Auto-approve verified purchases, others need moderation
+        helpfulVotes: 0,
+        votedBy: []
+      };
+
+      product.reviews.push(review);
+
+      // Only count approved reviews
+      const approvedReviews = product.reviews.filter(r => r.isApproved);
+      product.numReviews = approvedReviews.length;
+
+      product.rating = approvedReviews.length > 0
+        ? approvedReviews.reduce((acc, item) => item.rating + acc, 0) / approvedReviews.length
+        : 0;
+
+      await product.save();
+
+      const message = hasPurchased
+        ? "Review added and approved (verified purchase)"
+        : "Review submitted for moderation";
+
+      res.status(201).json({
+        message,
+        isVerifiedPurchase: !!hasPurchased,
+        isApproved: !!hasPurchased
+      });
+    } else {
+      res.status(404);
+      throw new Error("Product not found");
+    }
+  })
+);
+
 module.exports = router;

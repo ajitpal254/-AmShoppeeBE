@@ -34,11 +34,12 @@ const protect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // Try to find user, if not found it might be a vendor or just invalid
-            // For now, let's assume we just need to attach the decoded info or find the user
-            // If you have a User model, uncomment the next line:
-            // req.user = await User.findById(decoded.id).select('-password');
-            req.user = decoded;
+            // Fetch user from database
+            req.user = await User.findById(decoded.id).select('-password');
+
+            if (!req.user) {
+                return res.status(401).json({ message: 'Not authorized, user not found' });
+            }
 
             next();
         } catch (error) {
@@ -50,4 +51,14 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protectVendor, protect };
+// Middleware to check if user is admin
+const admin = (req, res, next) => {
+    if (req.user && req.user.isAdmin) {
+        next();
+    } else {
+        res.status(403);
+        res.json({ message: 'Not authorized as admin' });
+    }
+};
+
+module.exports = { protectVendor, protect, admin };

@@ -90,7 +90,23 @@ const orderSchema = mongoose.Schema({
     },
     deliveredAt: {
         type: Date
-    }
+    },
+    orderStatus: {
+        type: String,
+        enum: ['Processing', 'Confirmed', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'],
+        default: 'Processing'
+    },
+    statusHistory: [{
+        status: {
+            type: String,
+            enum: ['Processing', 'Confirmed', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled']
+        },
+        timestamp: {
+            type: Date,
+            default: Date.now
+        },
+        note: String
+    }]
 }, { timestamps: true })
 
 const Order = mongoose.model('Order', orderSchema);

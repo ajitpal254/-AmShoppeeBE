@@ -19,20 +19,50 @@ const discountRoutes = require('./Routes/discountRoutes')
 const adminVendorRoutes = require('./Routes/AdminVendorRoutes')
 
 
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const wishlistRoutes = require('./Routes/wishlistRoutes');
+const reviewRoutes = require('./Routes/reviewRoutes');
+
 dotenv.config();
 conectDb();
 const app = express()
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.get('/', (req, res) => {
     res.send('<h1> Welcome to Node Server</h1>')
 })
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+
+const helmet = require('helmet');
+const hpp = require('hpp');
+const rateLimit = require('express-rate-limit');
+
+// Security Middleware
+app.use(helmet());
+
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use(limiter);
+
+// Prevent Parameter Pollution
+app.use(hpp());
+
+// Data Sanitization against NoSQL query injection
+// app.use(mongoSanitize());
+
+// Data Sanitization against XSS
+// app.use(xss());
 app.use(productRoutes)
 app.use(OrderGet)
 app.use(OrderRoute)
@@ -44,7 +74,9 @@ app.use(orderManagement)
 app.use('/api/profile', userProfileRoutes)  // User profile routes
 app.use('/api/vendor', vendorProductRoutes)  // Vendor product routes
 app.use('/api/discount', discountRoutes)  // Discount/coupon routes
+app.use('/api/wishlist', wishlistRoutes) // Wishlist routes
 app.use('/api', adminVendorRoutes)  // Admin vendor management routes
+app.use('/api/reviews', reviewRoutes)  // Review management routes
 app.use(errorHandler);
 
 const PORT = 8080;
