@@ -77,6 +77,10 @@ app.use('/api/discount', discountRoutes)  // Discount/coupon routes
 app.use('/api/wishlist', wishlistRoutes) // Wishlist routes
 app.use('/api', adminVendorRoutes)  // Admin vendor management routes
 app.use('/api/reviews', reviewRoutes)  // Review management routes
+app.get('/api/config/paypal', (req, res) => res.send(process.env.PAYPAL_CLIENT_ID));
+
+app.use('/api/payment', require('./Routes/paymentRoutes'));
+
 app.use(errorHandler);
 
 const PORT = 8080;

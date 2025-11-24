@@ -51,6 +51,32 @@ router.post('/orders', protect, async (req, res) => {
     }
 });
 
+// Update order to paid
+router.put('/orders/:id/pay', protect, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (order) {
+            order.isPaid = true;
+            order.paidAt = Date.now();
+            order.paymentResult = {
+                id: req.body.id,
+                status: req.body.status,
+                update_time: req.body.update_time,
+                email_address: req.body.payer?.email_address || req.body.email_address
+            };
+
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    } catch (error) {
+        console.error('Update order to paid error:', error);
+        res.status(500).json({ message: 'Failed to update order payment', error: error.message });
+    }
+});
+
 // Get ALL orders (admin only)
 router.get('/admin/orders', protect, async (req, res) => {
     try {
@@ -84,9 +110,11 @@ router.get('/orders', protect, async (req, res) => {
 // Get single order by ID
 router.get('/orders/:id', protect, async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id);
+        const order = await Order.findById(req.params.id).populate('User', 'name email');
 
-        if (order && order.User.toString() === req.user.id) {
+        // Check ownership (handle both populated and unpopulated User field)
+        const orderUserId = order.User._id || order.User;
+        if (order && orderUserId.toString() === req.user.id) {
             res.json(order);
         } else {
             res.status(404).json({ message: 'Order not found' });

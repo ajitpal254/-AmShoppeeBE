@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    const responseStatus = res.statusCode === 200 ? 500 : res.statusCode;
     const serviceName = 'BackendService';
 
     // Log error with service name
@@ -10,7 +10,7 @@ const errorHandler = (err, req, res, next) => {
         method: req.method
     });
 
-    res.status(statusCode);
+    res.status(responseStatus);
     res.json({
         service: serviceName,
         message: err.message,
