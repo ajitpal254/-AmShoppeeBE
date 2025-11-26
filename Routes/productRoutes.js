@@ -25,12 +25,24 @@ router.get(
 
     // Category filter
     if (category) {
-      query.category = new RegExp(category, 'i');
+      if (category.includes(',')) {
+        const categories = category.split(',').map(c => c.trim());
+        query.category = { $in: categories };
+      } else {
+        query.category = new RegExp(category, 'i');
+      }
     }
 
     // Deals filter
     if (req.query.deals === 'true') {
       query.isOnDiscount = true;
+    }
+
+    // Price range filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
     }
 
     // Price range filter

@@ -5,26 +5,7 @@ const UserProfile = require('../models/UserProfile');
 const bcrypt = require('bcrypt');
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
-
-// Middleware to verify JWT token
-const protect = async (req, res, next) => {
-    let token;
-
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
-            token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select('-password');
-            next();
-        } catch (error) {
-            res.status(401).json({ message: 'Not authorized, token failed' });
-        }
-    }
-
-    if (!token) {
-        res.status(401).json({ message: 'Not authorized, no token' });
-    }
-};
+const { protect } = require('../middleware/authMiddleware');
 
 // @route   GET /api/profile
 // @desc    Get user profile

@@ -1,6 +1,7 @@
 const express = require('express');
 const adminRouter = express.Router();
 const { protectVendor } = require('../middleware/vendorAuth');
+const { protect, admin } = require('../middleware/authMiddleware');
 const {
     uploadProduct,
     getAllProducts,
@@ -17,19 +18,19 @@ const {
 } = require('../controllers/productController');
 
 // Upload Product
-adminRouter.post('/admin/upload', uploadProduct);
+adminRouter.post('/admin/upload', protect, admin, uploadProduct);
 
 // Get All Products
-adminRouter.get('/admin/delete', getAllProducts);
+adminRouter.get('/admin/delete', protect, admin, getAllProducts);
 
 // Get Single Product by ID
-adminRouter.get('/admin/delete/:id', getProductById);
+adminRouter.get('/admin/delete/:id', protect, admin, getProductById);
 
 // DELETE Product by ID
-adminRouter.delete('/admin/delete/:id', deleteProduct);
+adminRouter.delete('/admin/delete/:id', protect, admin, deleteProduct);
 
 // Update Product Discount (Admin)
-adminRouter.put('/admin/products/:id/discount', updateProductDiscount);
+adminRouter.put('/admin/products/:id/discount', protect, admin, updateProductDiscount);
 
 // VENDOR ROUTES
 
