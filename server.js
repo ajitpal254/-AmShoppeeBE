@@ -28,7 +28,15 @@ conectDb();
 const app = express()
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://192.168.2.33:3000', 'https://three-am-shop.web.app', 'https://threeamshoppeebe.onrender.com'],
+    origin: [
+        'http://localhost:3000', 
+        'http://192.168.2.33:3000', 
+        'https://three-am-shop.web.app',
+        'https://3amshoppeebe.onrender.com',
+        'https://threeamshoppeebe.onrender.com',
+        'https://3amshoppme.netlify.app',
+        'https://threeamshoppme.netlify.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
