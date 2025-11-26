@@ -12,6 +12,10 @@ const JWT_SECRET_VENDOR = process.env.JWT_SECRET_VENDOR;
 router.post('/vendor/signup', async (req, res) => {
     try {
         const { name, email, password, businessCategory, niche, phone, website } = req.body;
+        
+        if (typeof email !== 'string') {
+            return res.status(400).json({ msg: 'Invalid email format' });
+        }
 
         // Check if vendor already exists
         let vendor = await Vendor.findOne({ email });
@@ -81,6 +85,10 @@ router.get('/vendor/verify/:token', async (req, res) => {
 router.post('/vendor/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (typeof email !== 'string') {
+            return res.status(400).json({ msg: 'Invalid email format' });
+        }
 
         // Look up vendor by email
         const vendor = await Vendor.findOne({ email });

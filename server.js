@@ -29,9 +29,10 @@ conectDb();
 const app = express()
 
 app.use(cors({
-    origin: '*',
+    origin: ['http://localhost:3000', 'http://192.168.2.33:3000', 'https://three-am-shop.web.app', 'https://threeamshoppeebe.onrender.com'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 
 app.get('/', (req, res) => {
@@ -59,10 +60,10 @@ app.use(limiter);
 app.use(hpp());
 
 // Data Sanitization against NoSQL query injection
-// app.use(mongoSanitize());
+app.use(mongoSanitize());
 
 // Data Sanitization against XSS
-// app.use(xss());
+app.use(xss());
 app.use(productRoutes)
 app.use(OrderGet)
 app.use(OrderRoute)
