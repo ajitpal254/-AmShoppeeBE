@@ -19,8 +19,7 @@ const discountRoutes = require('./Routes/discountRoutes')
 const adminVendorRoutes = require('./Routes/AdminVendorRoutes')
 
 
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
+const { sanitizeNoSQL, sanitizeXSS } = require('./middleware/sanitizationMiddleware');
 const wishlistRoutes = require('./Routes/wishlistRoutes');
 const reviewRoutes = require('./Routes/reviewRoutes');
 
@@ -59,11 +58,11 @@ app.use(limiter);
 // Prevent Parameter Pollution
 app.use(hpp());
 
-// Data Sanitization against NoSQL query injection
-app.use(mongoSanitize());
+// Data Sanitization against NoSQL query injection (custom middleware)
+app.use(sanitizeNoSQL);
 
-// Data Sanitization against XSS
-app.use(xss());
+// Data Sanitization against XSS (custom middleware)
+app.use(sanitizeXSS);
 app.use(productRoutes)
 app.use(OrderGet)
 app.use(OrderRoute)
