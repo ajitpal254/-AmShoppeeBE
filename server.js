@@ -42,6 +42,9 @@ app.use(cors({
     credentials: true
 }));
 
+// Trust proxy - Required when behind a reverse proxy (Render, Heroku, etc.)
+app.set('trust proxy', 1);
+
 app.get('/', (req, res) => {
     res.send('<h1> Welcome to Node Server</h1>')
 })
