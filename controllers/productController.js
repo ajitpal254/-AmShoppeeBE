@@ -7,8 +7,25 @@ const Order = require('../models/OrderModel');
 // @route   POST /admin/upload
 // @access  Admin
 const uploadProduct = asyncHandler(async (req, res) => {
+    // Extract imageUrl strings from images array if they are objects
+    let processedImages = [];
+    if (req.body.images) {
+        // Handle both array and single object cases
+        const imagesArray = Array.isArray(req.body.images) ? req.body.images : [req.body.images];
+        
+        processedImages = imagesArray.map(img => {
+            // If it's an object with imageUrl property, extract the URL
+            if (typeof img === 'object' && img.imageUrl) {
+                return img.imageUrl;
+            }
+            // If it's already a string, use it as is
+            return img;
+        }).filter(url => url); // Filter out any null/undefined values
+    }
+
     const imgUpload = new Product({
         image: req.body.image,
+        images: processedImages,
         name: req.body.name,
         price: req.body.price,
         description: req.body.description,
@@ -113,8 +130,25 @@ const deleteVendorProduct = asyncHandler(async (req, res) => {
 // @route   POST /vendor/upload
 // @access  Vendor
 const uploadVendorProduct = asyncHandler(async (req, res) => {
+    // Extract imageUrl strings from images array if they are objects
+    let processedImages = [];
+    if (req.body.images) {
+        // Handle both array and single object cases
+        const imagesArray = Array.isArray(req.body.images) ? req.body.images : [req.body.images];
+        
+        processedImages = imagesArray.map(img => {
+            // If it's an object with imageUrl property, extract the URL
+            if (typeof img === 'object' && img.imageUrl) {
+                return img.imageUrl;
+            }
+            // If it's already a string, use it as is
+            return img;
+        }).filter(url => url); // Filter out any null/undefined values
+    }
+
     const imgUpload = new Product({
         image: req.body.image,
+        images: processedImages,
         name: req.body.name,
         price: req.body.price,
         description: req.body.description,
@@ -203,8 +237,52 @@ const updateVendorOrderPayStatus = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Update Product (Admin)
+// @route   PUT /admin/products/:id
+// @access  Admin
+const updateProduct = asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Process images array if provided
+    let processedImages = product.images;
+    if (req.body.images !== undefined) {
+        if (Array.isArray(req.body.images)) {
+            processedImages = req.body.images.map(img => {
+                // If it's an object with imageUrl property, extract the URL
+                if (typeof img === 'object' && img.imageUrl) {
+                    return img.imageUrl;
+                }
+                // If it's already a string, use it as is
+                return img;
+            }).filter(url => url); // Filter out any null/undefined values
+        }
+    }
+
+    // Update fields
+    product.name = req.body.name !== undefined ? req.body.name : product.name;
+    product.price = req.body.price !== undefined ? req.body.price : product.price;
+    product.description = req.body.description !== undefined ? req.body.description : product.description;
+    product.image = req.body.image !== undefined ? req.body.image : product.image;
+    product.images = processedImages;
+    product.brand = req.body.brand !== undefined ? req.body.brand : product.brand;
+    product.category = req.body.category !== undefined ? req.body.category : product.category;
+    product.countInStock = req.body.countInStock !== undefined ? req.body.countInStock : product.countInStock;
+
+    const updatedProduct = await product.save();
+
+    res.json({
+        message: 'Product updated successfully',
+        product: updatedProduct,
+    });
+});
+
 module.exports = {
     uploadProduct,
+    updateProduct,
     getAllProducts,
     getProductById,
     deleteProduct,

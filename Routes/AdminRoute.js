@@ -4,6 +4,7 @@ const { protectVendor } = require('../middleware/vendorAuth');
 const { protect, admin } = require('../middleware/authMiddleware');
 const {
     uploadProduct,
+    updateProduct,
     getAllProducts,
     getProductById,
     deleteProduct,
@@ -28,6 +29,9 @@ adminRouter.get('/admin/delete/:id', protect, admin, getProductById);
 
 // DELETE Product by ID
 adminRouter.delete('/admin/delete/:id', protect, admin, deleteProduct);
+
+// UPDATE Product by ID (Admin)
+adminRouter.put('/admin/products/:id', protect, admin, updateProduct);
 
 // Update Product Discount (Admin)
 adminRouter.put('/admin/products/:id/discount', protect, admin, updateProductDiscount);

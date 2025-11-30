@@ -128,6 +128,18 @@ const productSchema = mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Pre-save middleware to ensure images array only contains strings
+productSchema.pre('save', async function() {
+    if (this.images && Array.isArray(this.images)) {
+        this.images = this.images.map(img => {
+            if (typeof img === 'object' && img.imageUrl) {
+                return img.imageUrl;
+            }
+            return typeof img === 'string' ? img : null;
+        }).filter(url => url !== null && url !== undefined);
+    }
+});
+
 const Product = mongoose.model('Product', productSchema);
 
 

@@ -72,15 +72,29 @@ const getVendorStats = asyncHandler(async (req, res) => {
 // @desc    Create a new product (vendor)
 // @access  Private (Vendor)
 const createVendorProduct = asyncHandler(async (req, res) => {
-    const { name, image, brand, category, description, price, countInStock } = req.body;
+    const { name, image, images, brand, category, description, price, countInStock } = req.body;
 
     if (!name || !image || !brand || !category || !description || !price || countInStock === undefined) {
         return res.status(400).json({ message: 'Please provide all required fields' });
     }
 
+    // Extract imageUrl strings from images array if they are objects
+    let processedImages = [];
+    if (images && Array.isArray(images)) {
+        processedImages = images.map(img => {
+            // If it's an object with imageUrl property, extract the URL
+            if (typeof img === 'object' && img.imageUrl) {
+                return img.imageUrl;
+            }
+            // If it's already a string, use it as is
+            return img;
+        }).filter(url => url); // Filter out any null/undefined values
+    }
+
     const product = new Product({
         name,
         image,
+        images: processedImages,
         brand,
         category,
         description,
@@ -115,9 +129,27 @@ const updateVendorProduct = asyncHandler(async (req, res) => {
         return res.status(403).json({ message: 'Not authorized to update this product' });
     }
 
+    // Process images array if provided
+    let processedImages = product.images;
+    if (req.body.images !== undefined) {
+        if (Array.isArray(req.body.images)) {
+            processedImages = req.body.images.map(img => {
+                // If it's an object with imageUrl property, extract the URL
+                if (typeof img === 'object' && img.imageUrl) {
+                    return img.imageUrl;
+                }
+                // If it's already a string, use it as is
+                return img;
+            }).filter(url => url); // Filter out any null/undefined values
+        } else {
+            processedImages = [];
+        }
+    }
+
     // Update fields
     product.name = req.body.name || product.name;
     product.image = req.body.image || product.image;
+    product.images = processedImages;
     product.brand = req.body.brand || product.brand;
     product.category = req.body.category || product.category;
     product.description = req.body.description || product.description;

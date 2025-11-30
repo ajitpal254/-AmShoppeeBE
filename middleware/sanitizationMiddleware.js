@@ -47,8 +47,12 @@ const sanitizeNoSQL = (req, res, next) => {
 /**
  * XSS Prevention Middleware
  * Escapes HTML special characters in request data
+ * Excludes URL fields to prevent breaking image/resource links
  */
 const sanitizeXSS = (req, res, next) => {
+    // Fields that should not be sanitized (URLs, etc.)
+    const skipFields = ['image', 'images', 'imageUrl', 'url', 'website', 'avatar', 'profilePicture'];
+    
     const escapeHtml = (str) => {
         if (typeof str !== 'string') return str;
         
@@ -57,11 +61,11 @@ const sanitizeXSS = (req, res, next) => {
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;')
-            .replace(/\//g, '&#x2F;');
+            .replace(/'/g, '&#x27;');
+            // Removed forward slash encoding to preserve URLs
     };
     
-    const sanitizeObject = (obj) => {
+    const sanitizeObject = (obj, parentKey = '') => {
         if (!obj || typeof obj !== 'object') {
             return typeof obj === 'string' ? escapeHtml(obj) : obj;
         }
@@ -69,12 +73,23 @@ const sanitizeXSS = (req, res, next) => {
         const sanitized = Array.isArray(obj) ? [] : {};
         
         for (const key in obj) {
+            // Skip sanitization for URL fields
+            if (skipFields.includes(key)) {
+                sanitized[key] = obj[key];
+                continue;
+            }
+            
             const value = obj[key];
             
             if (typeof value === 'object' && value !== null) {
-                sanitized[key] = sanitizeObject(value);
+                sanitized[key] = sanitizeObject(value, key);
             } else if (typeof value === 'string') {
-                sanitized[key] = escapeHtml(value);
+                // Don't sanitize if it looks like a URL
+                if (value.startsWith('http://') || value.startsWith('https://')) {
+                    sanitized[key] = value;
+                } else {
+                    sanitized[key] = escapeHtml(value);
+                }
             } else {
                 sanitized[key] = value;
             }
