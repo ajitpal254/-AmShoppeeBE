@@ -4,7 +4,9 @@ const {
   registerUser,
   verifyEmail,
   loginUser,
-  googleLogin
+  googleLogin,
+  forgotPassword,
+  resetPassword
 } = require("../controllers/userController");
 require("dotenv").config();
 
@@ -30,5 +32,11 @@ router.post("/login", loginUser);
 
 // Google Login Route
 router.post("/google-login", googleLogin);
+
+// Forgot Password Route
+router.post("/forgot-password", forgotPassword);
+
+// Reset Password Route
+router.post("/reset-password", resetPassword);
 
 module.exports = router;

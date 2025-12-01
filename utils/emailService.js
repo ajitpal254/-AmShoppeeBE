@@ -1,21 +1,36 @@
-const sgMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 require("dotenv").config();
 
-if (process.env.SENDGRID_API_KEY) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-    console.warn("SENDGRID_API_KEY is not set. Emails will not be sent.");
-}
+// Create a reusable transporter object using the default SMTP transport
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use 'gmail' for Gmail, or configure host/port for others
+    auth: {
+        user: process.env.EMAIL_USER, // Your email address
+        pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
+    }
+});
+
+// Verify connection configuration
+transporter.verify(function (error, success) {
+    if (error) {
+        console.log("Email Service Error:", error);
+    } else {
+        console.log("Email Service is ready to take our messages");
+    }
+});
 
 const sendVerificationEmail = async (to, link, isVendor = false) => {
-    if (!process.env.SENDGRID_API_KEY) return;
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn("EMAIL_USER or EMAIL_PASS is not set. Emails will not be sent.");
+        return;
+    }
 
     const subject = isVendor ? 'Verify your vendor account' : 'Verify your 3AmShopp account';
     const title = isVendor ? 'Welcome to 3AmShopp Vendor Portal!' : 'Welcome to 3AmShopp!';
 
-    const msg = {
-        to,
-        from: 'testingpurposeap@gmail.com', // Ensure this sender is verified in SendGrid
+    const mailOptions = {
+        from: `"3AmShopp Support" <${process.env.EMAIL_USER}>`,
+        to: to,
         subject: subject,
         html: `
             <div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -28,23 +43,23 @@ const sendVerificationEmail = async (to, link, isVendor = false) => {
     };
 
     try {
-        await sgMail.send(msg);
+        await transporter.sendMail(mailOptions);
         console.log('Verification email sent to:', to);
     } catch (error) {
-        console.error('Error sending verification email:', error.response ? error.response.body : error.message);
+        console.error('Error sending verification email:', error);
     }
 };
 
 const sendApprovalEmail = async (to, name) => {
-    if (!process.env.SENDGRID_API_KEY) return;
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
 
     const loginLink = process.env.NODE_ENV === 'production'
         ? 'https://3amShoppme.netlify.app/vendor/login'
         : 'http://localhost:3000/vendor/login';
 
-    const msg = {
-        to,
-        from: 'testingpurposeap@gmail.com',
+    const mailOptions = {
+        from: `"3AmShopp Support" <${process.env.EMAIL_USER}>`,
+        to: to,
         subject: 'Your Vendor Account is Approved!',
         html: `
             <div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -57,11 +72,37 @@ const sendApprovalEmail = async (to, name) => {
     };
 
     try {
-        await sgMail.send(msg);
+        await transporter.sendMail(mailOptions);
         console.log('Approval email sent to:', to);
     } catch (error) {
-        console.error('Error sending approval email:', error.response ? error.response.body : error.message);
+        console.error('Error sending approval email:', error);
     }
 };
 
-module.exports = { sendVerificationEmail, sendApprovalEmail };
+const sendPasswordResetEmail = async (to, link) => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
+
+    const mailOptions = {
+        from: `"3AmShopp Support" <${process.env.EMAIL_USER}>`,
+        to: to,
+        subject: 'Reset your 3AmShopp password',
+        html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #333;">Password Reset Request</h2>
+                <p>You requested to reset your password. Click the link below to proceed:</p>
+                <a href="${link}" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+                <p style="margin-top: 20px; color: #666;">This link will expire in 1 hour.</p>
+                <p style="color: #999; font-size: 12px;">If you didn't request this, please ignore this email.</p>
+            </div>
+        `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Password reset email sent to:', to);
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+    }
+};
+
+module.exports = { sendVerificationEmail, sendApprovalEmail, sendPasswordResetEmail };

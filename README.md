@@ -35,13 +35,14 @@ This project is built with the following technologies:
 - **dotenv** - Environment variable management
 - **CORS** - Cross-Origin Resource Sharing
 - **Firebase Admin** - Google authentication integration
-- **SendGrid** - Email service integration
+- **Nodemailer** - Email service integration (Gmail/SMTP)
 - **Cloudinary** - Cloud-based image management
 - **Express Async Handler** - Async error handling
 
 ## ✨ Features
 
 ### Authentication & Authorization
+
 - User registration and login with JWT tokens
 - Password hashing with bcrypt
 - Email verification system
@@ -49,6 +50,7 @@ This project is built with the following technologies:
 - Role-based access control (Admin, Vendor, User)
 
 ### Product Management
+
 - CRUD operations for products
 - Product search with keyword filtering
 - Category-based product filtering
@@ -58,27 +60,32 @@ This project is built with the following technologies:
 - Product image management
 
 ### Order Management
+
 - Create and manage orders
 - Order status tracking
 - Order history for users
 - Admin order management dashboard
 
 ### Vendor System
+
 - Vendor registration and authentication
 - Vendor-specific product management
 - Vendor dashboard capabilities
 
 ### Discount & Promotions
+
 - Create and manage discount codes
 - Apply coupons to orders
 - Promotional code validation
 
 ### User Profiles
+
 - User profile management
 - Update user information
 - Order history tracking
 
 ### Admin Features
+
 - Admin dashboard
 - User management
 - Product management
@@ -110,20 +117,17 @@ npm install
 
 3. **Set up environment variables**
 
-Create a `.env` file in the root directory by copying the example file:
+Create a `.env` file in the root directory. You will need to configure the following variables:
 
-```bash
-cp .env.example .env
-```
+- `MONGO_URI`: Connection string for your MongoDB database
+- `JWT_SECRET`: Secret key for JWT token generation
+- `PORT`: The application will run on this port (default: 8080)
+- `EMAIL_USER`: Email address for sending notifications (Gmail recommended)
+- `EMAIL_PASS`: App Password for the email account
+- `FIREBASE_CREDENTIALS`: (Optional) For Google Auth
+- `CLOUDINARY_URL`: (Optional) For image uploads
 
-### Important Notes:
-
-- **MONGO_URI**: Connection string for your MongoDB database (required)
-- **JWT_SECRET**: Secret key for JWT token generation - **MUST** be changed in production (required)
-- **Firebase**: Required only if you want to enable Google authentication
-- **SendGrid**: Required only if you want to send verification/notification emails
-- **Cloudinary**: Required only if you want to enable image upload functionality
-- **PORT**: The application will run on this port (default: 8080)
+**Note:** Never commit your `.env` file to version control.
 
 ## 🏃 Running the Application
 
@@ -153,6 +157,7 @@ http://localhost:8080
 ```
 
 The root endpoint will display:
+
 ```
 Welcome to Node Server
 ```
@@ -160,6 +165,7 @@ Welcome to Node Server
 ## 🔌 API Endpoints
 
 ### Authentication Routes (`/app`)
+
 - `POST /app/signup` - User registration
 - `POST /app/login` - User login
 - `POST /app/google-login` - Google authentication
@@ -168,36 +174,43 @@ Welcome to Node Server
 - `POST /app/reset-password` - Reset password
 
 ### Product Routes
+
 - `GET /products` - Get all products with optional filters (keyword, category, price range, sort)
 - `GET /products/:id` - Get product by ID
 - `GET /categories` - Get all product categories
 - `GET /products/category/:category` - Get products by category
 
 ### Order Routes
+
 - `POST /orders` - Create new order
 - `GET /orders` - Get user orders
 - `GET /orders/:id` - Get order by ID
 
 ### Admin Routes (`/admin`)
+
 - Admin authentication and dashboard access
 - User management
 - Product management
 - Order management
 
 ### Vendor Routes (`/vendor`)
+
 - Vendor registration and authentication
 - Vendor product management
 - Vendor dashboard
 
 ### User Profile Routes (`/api/profile`)
+
 - `GET /api/profile` - Get user profile
 - `PUT /api/profile` - Update user profile
 - `GET /api/profile/orders` - Get user order history
 
 ### Vendor Product Routes (`/api/vendor`)
+
 - Vendor-specific product CRUD operations
 
 ### Discount Routes (`/api/discount`)
+
 - `POST /api/discount` - Create discount code
 - `GET /api/discount` - Get all discount codes
 - `POST /api/discount/validate` - Validate discount code
@@ -252,22 +265,26 @@ Contributions are welcome! Here's how you can help:
 1. **Fork the repository**
 
 2. **Create a feature branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 3. **Make your changes**
+
    - Write clean, maintainable code
    - Follow the existing code style
    - Add comments where necessary
    - Test your changes thoroughly
 
 4. **Commit your changes**
+
    ```bash
    git commit -m "Add: description of your feature"
    ```
 
 5. **Push to your branch**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -287,6 +304,7 @@ Contributions are welcome! Here's how you can help:
 ### Reporting Issues
 
 If you find a bug or have a suggestion, please open an issue on GitHub with:
+
 - A clear description of the problem
 - Steps to reproduce (for bugs)
 - Expected vs actual behavior

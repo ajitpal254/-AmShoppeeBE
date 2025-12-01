@@ -251,9 +251,79 @@ const googleLogin = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Forgot Password
+// @route   POST /app/forgot-password
+// @access  Public
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        return res.status(404).json({ message: "User not found with this email." });
+    }
+
+    const resetToken = jwt.sign(
+        { id: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+    );
+
+    const domain = process.env.NODE_ENV === 'production'
+        ? 'https://3amShoppme.netlify.app'
+        : 'http://localhost:3000';
+    
+    const resetLink = `${domain}/reset-password/${resetToken}`;
+
+    // Import here to avoid circular dependency issues if any, though top-level is fine usually
+    const { sendPasswordResetEmail } = require("../utils/emailService");
+    
+    try {
+        await sendPasswordResetEmail(user.email, resetLink);
+        res.status(200).json({ message: "Password reset link sent to your email." });
+    } catch (error) {
+        res.status(500).json({ message: "Error sending email. Please try again later." });
+    }
+});
+
+// @desc    Reset Password
+// @route   POST /app/reset-password
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+        return res.status(400).json({ message: "Token and new password are required." });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters long." });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        await user.save();
+
+        res.status(200).json({ message: "Password reset successful. You can now login." });
+
+    } catch (error) {
+        console.error("Reset password error:", error);
+        res.status(400).json({ message: "Invalid or expired token." });
+    }
+});
+
 module.exports = {
     registerUser,
     verifyEmail,
     loginUser,
-    googleLogin
+    googleLogin,
+    forgotPassword,
+    resetPassword
 };
