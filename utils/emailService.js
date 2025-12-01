@@ -4,13 +4,20 @@ require("dotenv").config();
 console.log("Initializing Email Service...");
 
 // Create a reusable transporter object using the default SMTP transport
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465, // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL_USER, // Your email address
-        pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
+        user: smtpUser,
+        pass: smtpPass
     },
-    // Force IPv4 to avoid timeouts on some cloud providers (Render/AWS)
+    // Force IPv4 to avoid timeouts on some cloud providers
     family: 4
 });
 
@@ -28,7 +35,7 @@ const sendVerificationEmail = async (to, link, isVendor = false) => {
     const title = isVendor ? 'Welcome to 3AmShopp Vendor Portal!' : 'Welcome to 3AmShopp!';
 
     const mailOptions = {
-        from: `"3AmShopp Support" <${process.env.EMAIL_USER}>`,
+        from: `"3AmShopp Support" <${smtpUser}>`,
         to: to,
         subject: subject,
         html: `
@@ -57,7 +64,7 @@ const sendApprovalEmail = async (to, name) => {
         : 'http://localhost:3000/vendor/login';
 
     const mailOptions = {
-        from: `"3AmShopp Support" <${process.env.EMAIL_USER}>`,
+        from: `"3AmShopp Support" <${smtpUser}>`,
         to: to,
         subject: 'Your Vendor Account is Approved!',
         html: `
@@ -82,7 +89,7 @@ const sendPasswordResetEmail = async (to, link) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
 
     const mailOptions = {
-        from: `"3AmShopp Support" <${process.env.EMAIL_USER}>`,
+        from: `"3AmShopp Support" <${smtpUser}>`,
         to: to,
         subject: 'Reset your 3AmShopp password',
         html: `
