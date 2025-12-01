@@ -8,6 +8,7 @@ const {
   forgotPassword,
   resetPassword
 } = require("../controllers/userController");
+const { authLimiter } = require("../middleware/rateLimiters");
 require("dotenv").config();
 
 // Ensure JWT_SECRET is set
@@ -17,7 +18,7 @@ if (!process.env.JWT_SECRET) {
 }
 
 // Signup Route
-router.post("/signup", registerUser);
+router.post("/signup", authLimiter, registerUser);
 
 // Verify Email Route
 router.get("/verify/:token", verifyEmail);
@@ -28,15 +29,15 @@ router.get("/test", (req, res) => {
 });
 
 // Login Route
-router.post("/login", loginUser);
+router.post("/login", authLimiter, loginUser);
 
 // Google Login Route
-router.post("/google-login", googleLogin);
+router.post("/google-login", authLimiter, googleLogin);
 
 // Forgot Password Route
-router.post("/forgot-password", forgotPassword);
+router.post("/forgot-password", authLimiter, forgotPassword);
 
 // Reset Password Route
-router.post("/reset-password", resetPassword);
+router.post("/reset-password", authLimiter, resetPassword);
 
 module.exports = router;

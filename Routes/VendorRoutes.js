@@ -2,14 +2,14 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const Vendor = require('../models/VendorModel');
 const { sendVerificationEmail } = require('../utils/emailService');
-
+const { authLimiter } = require('../middleware/rateLimiters');
 
 const router = express.Router();
 
 const JWT_SECRET_VENDOR = process.env.JWT_SECRET_VENDOR;
 
 // POST /signup - Register a new vendor
-router.post('/vendor/signup', async (req, res) => {
+router.post('/vendor/signup', authLimiter, async (req, res) => {
     try {
         const { name, email, password, businessCategory, niche, phone, website } = req.body;
         
@@ -82,7 +82,7 @@ router.get('/vendor/verify/:token', async (req, res) => {
 });
 
 // POST /login - Authenticate vendor and get token
-router.post('/vendor/login', async (req, res) => {
+router.post('/vendor/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
