@@ -6,8 +6,8 @@ console.log("Initializing Email Service...");
 // Create a reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER, // Your email address
         pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
@@ -15,9 +15,9 @@ const transporter = nodemailer.createTransport({
     // Force IPv4 to avoid timeouts on some cloud providers (Render/AWS)
     family: 4,
     // Add timeouts and logging for debugging
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 15000,
+    socketTimeout: 30000,
     logger: true,
     debug: true
 });
