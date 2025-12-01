@@ -96,7 +96,7 @@ const sendPasswordResetEmail = async (to, link) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
 
     const mailOptions = {
-        from: `"3AmShopp Support" <${smtpUser}>`,
+        from: `"3AmShopp Support" <${senderEmail}>`,
         to: to,
         subject: 'Reset your 3AmShopp password',
         html: `
