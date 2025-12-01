@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
 require("dotenv").config();
 
+console.log("Initializing Email Service...");
+
 // Create a reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -11,10 +13,17 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
     },
     // Force IPv4 to avoid timeouts on some cloud providers (Render/AWS)
-    family: 4
+    family: 4,
+    // Add timeouts and logging for debugging
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
+    logger: true,
+    debug: true
 });
 
 // Verify connection configuration
+console.log("Verifying Email Service connection...");
 transporter.verify(function (error, success) {
     if (error) {
         console.log("Email Service Error:", error);
