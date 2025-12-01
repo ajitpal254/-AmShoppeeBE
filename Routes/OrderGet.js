@@ -24,11 +24,9 @@ cartOrder.get('/cart/:id', asyncHandler(async (req, res) => {
 }));
 
 cartOrder.delete("/cart/:id", protect, (req, res) => {
-    console.log(req)
     Cart.findByIdAndDelete(req.params.id)
         .exec()
         .then(() => {
-            console.log("cartOrder: OK")
             res.sendStatus(200)
         }).catch(() => {
             res.sendStatus(400)

@@ -11,8 +11,6 @@ const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 const senderEmail = process.env.EMAIL_USER || smtpUser; // The actual email address to show in "From"
 
-console.log(`Configuring Email Service: Host=${smtpHost}, Port=${smtpPort}, User=${smtpUser}, Sender=${senderEmail}`);
-
 const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
@@ -22,10 +20,7 @@ const transporter = nodemailer.createTransport({
         pass: smtpPass
     },
     // Force IPv4 to avoid timeouts on some cloud providers
-    family: 4,
-    logger: true,
-    debug: true,
-    connectionTimeout: 10000
+    family: 4
 });
 
 // Verify connection configuration - REMOVED to prevent startup timeouts on Render
