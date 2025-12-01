@@ -3,7 +3,9 @@ require("dotenv").config();
 
 // Create a reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use 'gmail' for Gmail, or configure host/port for others
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.EMAIL_USER, // Your email address
         pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
