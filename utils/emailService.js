@@ -9,6 +9,7 @@ const smtpHost = process.env.SMTP_HOST || 'smtp-relay.brevo.com';
 const smtpPort = parseInt(process.env.SMTP_PORT || '587');
 const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+const senderEmail = process.env.EMAIL_USER || smtpUser; // The actual email address to show in "From"
 
 const transporter = nodemailer.createTransport({
     host: smtpHost,
@@ -36,7 +37,7 @@ const sendVerificationEmail = async (to, link, isVendor = false) => {
     const title = isVendor ? 'Welcome to 3AmShopp Vendor Portal!' : 'Welcome to 3AmShopp!';
 
     const mailOptions = {
-        from: `"3AmShopp Support" <${smtpUser}>`,
+        from: `"3AmShopp Support" <${senderEmail}>`,
         to: to,
         subject: subject,
         html: `
@@ -65,7 +66,7 @@ const sendApprovalEmail = async (to, name) => {
         : 'http://localhost:3000/vendor/login';
 
     const mailOptions = {
-        from: `"3AmShopp Support" <${smtpUser}>`,
+        from: `"3AmShopp Support" <${senderEmail}>`,
         to: to,
         subject: 'Your Vendor Account is Approved!',
         html: `
