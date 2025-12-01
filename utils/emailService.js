@@ -6,18 +6,17 @@ console.log("Initializing Email Service...");
 // Create a reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // true for 465, false for other ports
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    requireTLS: true, // Force STARTTLS
     auth: {
         user: process.env.EMAIL_USER, // Your email address
         pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
     },
-    // Force IPv4 to avoid timeouts on some cloud providers (Render/AWS)
-    family: 4,
-    // Add timeouts and logging for debugging
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 15000,
-    socketTimeout: 30000,
+    family: 4, // Force IPv4
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
     logger: true,
     debug: true
 });
@@ -26,7 +25,10 @@ const transporter = nodemailer.createTransport({
 console.log("Verifying Email Service connection...");
 transporter.verify(function (error, success) {
     if (error) {
-        console.log("Email Service Error:", error);
+        console.warn("Email Service Warning: Could not connect to SMTP server on startup.");
+        console.warn("This might be due to a temporary network issue or firewall blocking.");
+        console.warn("Error details:", error.message);
+        // Do not crash or spam logs with full stack trace
     } else {
         console.log("Email Service is ready to take our messages");
     }
