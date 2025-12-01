@@ -6,9 +6,11 @@ console.log("Initializing Email Service...");
 // Create a reusable transporter object using the default SMTP transport
 // HARDCODED to Brevo to force connection away from Gmail
 const smtpHost = 'smtp-relay.brevo.com';
-const smtpPort = 587;
+const smtpPort = 2525; // Try port 2525 as 587 might be blocked
 const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+
+console.log(`Configuring Email Service: Host=${smtpHost}, Port=${smtpPort}, User=${smtpUser ? 'Set' : 'Not Set'}`);
 
 const transporter = nodemailer.createTransport({
     host: smtpHost,
@@ -19,7 +21,10 @@ const transporter = nodemailer.createTransport({
         pass: smtpPass
     },
     // Force IPv4 to avoid timeouts on some cloud providers
-    family: 4
+    family: 4,
+    logger: true,
+    debug: true,
+    connectionTimeout: 10000
 });
 
 // Verify connection configuration - REMOVED to prevent startup timeouts on Render
