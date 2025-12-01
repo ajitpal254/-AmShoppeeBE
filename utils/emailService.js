@@ -4,23 +4,28 @@ require("dotenv").config();
 console.log("Initializing Email Service...");
 
 // Create a reusable transporter object using the default SMTP transport
-// Default to Brevo (Sendinblue) if env vars are not set, as Gmail blocks Render
-const smtpHost = process.env.SMTP_HOST || 'smtp-relay.brevo.com';
-const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+// HARDCODED to Brevo (Port 2525) to ensure connection works
+const smtpHost = 'smtp-relay.brevo.com';
+const smtpPort = 2525;
 const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 const senderEmail = process.env.EMAIL_USER || smtpUser; // The actual email address to show in "From"
 
+console.log(`Configuring Email Service: Host=${smtpHost}, Port=${smtpPort}, User=${smtpUser}, Sender=${senderEmail}`);
+
 const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465, // true for 465, false for other ports
+    secure: false, // true for 465, false for other ports
     auth: {
         user: smtpUser,
         pass: smtpPass
     },
     // Force IPv4 to avoid timeouts on some cloud providers
-    family: 4
+    family: 4,
+    logger: true,
+    debug: true,
+    connectionTimeout: 10000
 });
 
 // Verify connection configuration - REMOVED to prevent startup timeouts on Render
