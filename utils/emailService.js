@@ -5,34 +5,18 @@ console.log("Initializing Email Service...");
 
 // Create a reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    requireTLS: true, // Force STARTTLS
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER, // Your email address
         pass: process.env.EMAIL_PASS  // Your App Password (not your login password)
     },
-    family: 4, // Force IPv4
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
-    logger: true,
-    debug: true
+    // Force IPv4 to avoid timeouts on some cloud providers (Render/AWS)
+    family: 4
 });
 
-// Verify connection configuration
-console.log("Verifying Email Service connection...");
-transporter.verify(function (error, success) {
-    if (error) {
-        console.warn("Email Service Warning: Could not connect to SMTP server on startup.");
-        console.warn("This might be due to a temporary network issue or firewall blocking.");
-        console.warn("Error details:", error.message);
-        // Do not crash or spam logs with full stack trace
-    } else {
-        console.log("Email Service is ready to take our messages");
-    }
-});
+// Verify connection configuration - REMOVED to prevent startup timeouts on Render
+// We will handle errors during the actual sending process.
+console.log("Email Service initialized (Lazy verification)");
 
 const sendVerificationEmail = async (to, link, isVendor = false) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
