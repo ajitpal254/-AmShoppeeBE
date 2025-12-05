@@ -61,4 +61,40 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protectVendor, protect, admin };
+// Middleware to verify either user or vendor JWT token
+const protectAny = async (req, res, next) => {
+    let token;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+            token = req.headers.authorization.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Try to find user
+            const user = await User.findById(decoded.id).select('-password');
+            if (user) {
+                req.user = user;
+                req.role = user.isAdmin ? 'admin' : 'user';
+                return next();
+            }
+
+            // If not user, try to find vendor
+            const vendor = await Vendor.findById(decoded.id).select('-password');
+            if (vendor) {
+                req.vendor = vendor;
+                req.role = 'vendor';
+                return next();
+            }
+
+            return res.status(401).json({ message: 'Not authorized, user/vendor not found' });
+
+        } catch (error) {
+            console.error('Token verification failed:', error.message);
+            res.status(401).json({ message: 'Not authorized, token failed' });
+        }
+    } else {
+        res.status(401).json({ message: 'Not authorized, no token' });
+    }
+};
+
+module.exports = { protectVendor, protect, admin, protectAny };
