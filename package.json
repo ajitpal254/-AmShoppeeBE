@@ -41,7 +41,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.1",
     "nodemailer": "^7.0.11",
-    "openai": "^6.10.0",
+    "openai": "^6.15.0",
     "react-router-dom": "^7.10.1",
     "stripe": "^20.0.0",
     "xss-clean": "^0.1.4"
