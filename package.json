@@ -42,7 +42,7 @@
     "mongoose": "^9.0.1",
     "nodemailer": "^7.0.11",
     "openai": "^6.10.0",
-    "react-router-dom": "^7.10.1",
+    "react-router-dom": "^7.11.0",
     "stripe": "^20.0.0",
     "xss-clean": "^0.1.4"
   },
