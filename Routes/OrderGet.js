@@ -4,7 +4,7 @@ const asyncHandler = require('express-async-handler')
 const cartOrder = express.Router();
 const Cart = require('../models/CartModel')
 const mongoose = require("mongoose");
-const { protect } = require('../middleware/jwtauth');
+const { protect } = require('../middleware/authMiddleware');
 
 
 

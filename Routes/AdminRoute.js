@@ -1,7 +1,6 @@
 const express = require('express');
 const adminRouter = express.Router();
-const { protectVendor } = require('../middleware/vendorAuth');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protectVendor, protect, admin } = require('../middleware/authMiddleware');
 const {
     uploadProduct,
     updateProduct,

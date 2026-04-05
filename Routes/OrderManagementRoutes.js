@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/OrderModel');
 const Cart = require('../models/CartModel');
-const { protect } = require('../middleware/jwtauth');
+const { protect } = require('../middleware/authMiddleware');
 
 // Create order from cart items
 router.post('/orders', protect, async (req, res) => {

@@ -1,5 +1,5 @@
 const express = require('express');
-const products = require('./data/products');
+
 require('colors');
 const dotenv = require('dotenv');
 const conectDb = require('./config/db')

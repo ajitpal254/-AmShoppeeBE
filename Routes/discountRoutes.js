@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const DiscountCode = require('../models/DiscountCodeModel');
 const asyncHandler = require('express-async-handler');
-const { protectVendor } = require('../middleware/vendorAuth');
-const { protect } = require('../middleware/jwtauth');
+const { protectVendor, protect } = require('../middleware/authMiddleware');
 
 // @route   POST /api/discount/validate
 // @desc    Validate a discount code
