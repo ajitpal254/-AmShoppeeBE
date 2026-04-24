@@ -3,6 +3,7 @@ const router = express.Router();
 const Order = require('../models/OrderModel');
 const Cart = require('../models/CartModel');
 const { protect } = require('../middleware/authMiddleware');
+const User = require('../models/user');
 
 // Create order from cart items
 router.post('/orders', protect, async (req, res) => {
@@ -56,21 +57,28 @@ router.put('/orders/:id/pay', protect, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
 
-        if (order) {
-            order.isPaid = true;
-            order.paidAt = Date.now();
-            order.paymentResult = {
-                id: req.body.id,
-                status: req.body.status,
-                update_time: req.body.update_time,
-                email_address: req.body.payer?.email_address || req.body.email_address
-            };
-
-            const updatedOrder = await order.save();
-            res.json(updatedOrder);
-        } else {
-            res.status(404).json({ message: 'Order not found' });
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
         }
+
+        const user = await User.findById(req.user.id).select('isAdmin');
+        const ownsOrder = order.User.toString() === req.user.id;
+
+        if (!ownsOrder && !user?.isAdmin) {
+            return res.status(403).json({ message: 'Not authorized to update this order' });
+        }
+
+        order.isPaid = true;
+        order.paidAt = Date.now();
+        order.paymentResult = {
+            id: req.body.id,
+            status: req.body.status,
+            update_time: req.body.update_time,
+            email_address: req.body.payer?.email_address || req.body.email_address
+        };
+
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
     } catch (error) {
         console.error('Update order to paid error:', error);
         res.status(500).json({ message: 'Failed to update order payment', error: error.message });
@@ -80,8 +88,6 @@ router.put('/orders/:id/pay', protect, async (req, res) => {
 // Get ALL orders (admin only)
 router.get('/admin/orders', protect, async (req, res) => {
     try {
-        // Check if user is admin
-        const User = require('../models/user');
         const user = await User.findById(req.user.id);
 
         if (!user || !user.isAdmin) {
@@ -127,7 +133,6 @@ router.get('/orders/:id', protect, async (req, res) => {
 // Update order payment status (admin only)
 router.put('/admin/orders/:id/payment', protect, async (req, res) => {
     try {
-        const User = require('../models/user');
         const user = await User.findById(req.user.id);
 
         if (!user || !user.isAdmin) {
@@ -155,7 +160,6 @@ router.put('/admin/orders/:id/payment', protect, async (req, res) => {
 // Update order delivery status (admin only)
 router.put('/admin/orders/:id/delivery', protect, async (req, res) => {
     try {
-        const User = require('../models/user');
         const user = await User.findById(req.user.id);
 
         if (!user || !user.isAdmin) {
@@ -168,10 +172,6 @@ router.put('/admin/orders/:id/delivery', protect, async (req, res) => {
         }
 
         order.isDelivered = req.body.isDelivered;
-        // Also update old field name if it exists
-        if (order.isDelieved !== undefined) {
-            order.isDelieved = req.body.isDelivered;
-        }
         if (req.body.isDelivered) {
             order.deliveredAt = Date.now();
         }

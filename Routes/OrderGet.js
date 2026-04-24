@@ -13,8 +13,8 @@ cartOrder.get('/cart', protect, async (req, res) => {
     res.json(cart);
 }
 );
-cartOrder.get('/cart/:id', asyncHandler(async (req, res) => {
-    const product = await Cart.findById(req.params.id);
+cartOrder.get('/cart/:id', protect, asyncHandler(async (req, res) => {
+    const product = await Cart.findOne({ _id: req.params.id, user: req.user.id });
     if (product) {
         res.json(product)
     }
@@ -24,9 +24,12 @@ cartOrder.get('/cart/:id', asyncHandler(async (req, res) => {
 }));
 
 cartOrder.delete("/cart/:id", protect, (req, res) => {
-    Cart.findByIdAndDelete(req.params.id)
+    Cart.findOneAndDelete({ _id: req.params.id, user: req.user.id })
         .exec()
-        .then(() => {
+        .then((deletedItem) => {
+            if (!deletedItem) {
+                return res.status(404).json({ message: "Cart item not found" });
+            }
             res.sendStatus(200)
         }).catch(() => {
             res.sendStatus(400)

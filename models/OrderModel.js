@@ -32,7 +32,7 @@ const orderSchema = mongoose.Schema({
         }
     ],
     shippingAddress: {
-        addrress: {
+        address: {
             type: String,
             required: false
         },
@@ -64,6 +64,11 @@ const orderSchema = mongoose.Schema({
         required: true,
         default: 0.0
     },
+    itemsPrice: {
+        type: Number,
+        required: true,
+        default: 0.0
+    },
     shippingPrice: {
         type: Number,
         required: true,
@@ -83,7 +88,7 @@ const orderSchema = mongoose.Schema({
         type: Date,
 
     },
-    isDelieved: {
+    isDelivered: {
         type: Boolean,
         required: true,
         default: false
