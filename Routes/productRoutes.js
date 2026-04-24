@@ -9,12 +9,39 @@ router.get(
   asyncHandler(async (req, res) => {
     const { keyword, category, minPrice, maxPrice, sortBy } = req.query;
 
+    const escapeRegex = (value) =>
+      value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    const keywordSynonyms = {
+      shoes: ["shoe", "shoes", "sneaker", "sneakers", "trainer", "trainers", "footwear"],
+      shoe: ["shoe", "shoes", "sneaker", "sneakers", "trainer", "trainers", "footwear"],
+      sneaker: ["sneaker", "sneakers", "shoe", "shoes", "trainer", "trainers", "footwear"],
+      sneakers: ["sneaker", "sneakers", "shoe", "shoes", "trainer", "trainers", "footwear"],
+      watch: ["watch", "watches", "timepiece", "smartwatch"],
+      watches: ["watch", "watches", "timepiece", "smartwatch"],
+    };
+
     // Build query object
     let query = {};
 
     // Keyword search (searches in name, description, brand, category)
     if (keyword) {
-      const searchRegex = new RegExp(keyword, 'i'); // case-insensitive
+      const normalizedKeyword = keyword.trim().toLowerCase();
+      const keywordParts = normalizedKeyword.split(/\s+/).filter(Boolean);
+
+      const expandedParts = keywordParts.flatMap((part) => {
+        const variants = new Set([
+          part,
+          part.endsWith("s") ? part.slice(0, -1) : `${part}s`,
+          ...(keywordSynonyms[part] || []),
+        ]);
+
+        return Array.from(variants).filter(Boolean);
+      });
+
+      const uniqueTerms = Array.from(new Set([normalizedKeyword, ...expandedParts]));
+      const searchRegex = new RegExp(uniqueTerms.map(escapeRegex).join("|"), "i");
+
       query.$or = [
         { name: searchRegex },
         { description: searchRegex },
